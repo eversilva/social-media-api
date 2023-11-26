@@ -5,13 +5,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Task {
-  id          Int    @id @default(autoincrement())
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  password String
+  Post     Post[]
+
+  @@map("user")
+}
+
+model Post {
+  id          Int           @id @default(autoincrement())
   name        String
-  description String
+  text        String
+  image_src   String?
+  // author_id Int
+  // author    User          @relation(fields: [author_id], references: [id])
+  // comments  PostComment[]
+  User        User?         @relation(fields: [userId], references: [id])
+  userId      Int?
+  PostComment PostComment[]
+
+  @@map("posts")
+}
+
+model PostComment {
+  id           Int      @id @default(autoincrement())
+  text         String
+  image_src    String?
+  published_at DateTime
+  postId       Int
+  post         Post     @relation(fields: [postId], references: [id])
+
+  @@map("post_comments")
 }
